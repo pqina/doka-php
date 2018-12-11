@@ -2,8 +2,6 @@
 
 A image manipulation library to apply [Doka](https://pqina.nl/doka) and [FilePond](https://pqina.nl/filepond) image transform information on the server instead of on the client.
 
-Map FilePond and Doka on the `CropInstructions` and `ResizeInstructions` classes to supply instructions to `Doka\transform`.
-
 ## Usage
 
 ```php
