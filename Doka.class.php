@@ -5,7 +5,7 @@ namespace Doka;
 require_once('Image.class.php');
 require_once('Vector.class.php');
 require_once('Rect.class.php');
-require_once('Utils.class.php');
+require_once('Utils.php');
 
 function transform($source, $target, $transforms) {
         
@@ -115,7 +115,7 @@ class Core {
             isset($size->width) ? $size->width : $size->height,
             isset($size->height) ? $size->height : $size->width
         );
-        
+
         if ($output_size->width == null && $output_size->height == null) {
             return $input;
         }
@@ -160,7 +160,6 @@ class Core {
         }
 
         $output = $image->createWithSameFormat($output_size->width, $output_size->height);
-        //$output = self::createImageCanvas($src, $output_size);
 
         imagecopyresampled(
             // target <= source
@@ -179,7 +178,7 @@ class Core {
             $image_size->width, $image_size->height
         );
 
-        return $output;
+        $image->update($output);
     }
 
 }
