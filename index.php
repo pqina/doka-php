@@ -1,8 +1,7 @@
 <?php
+require_once('Doka/Doka.class.php');
 
 header('Content-Type: image/jpeg');
-
-require_once('Doka/Doka.class.php');
 
 /*
 // Load image transform instructions from json file

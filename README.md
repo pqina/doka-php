@@ -5,9 +5,9 @@ A image manipulation library to apply [Doka](https://pqina.nl/doka) and [FilePon
 ## Usage
 
 ```php
-header('Content-Type: image/jpeg');
-
 require_once('Doka/Doka.class.php');
+
+header('Content-Type: image/jpeg');
 
 /*
 // Load image transform instructions from JSON file
