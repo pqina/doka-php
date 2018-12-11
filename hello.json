@@ -1,0 +1,20 @@
+{
+    "resize": {
+        "mode": "contain",
+        "upscale": false,
+        "width": 200,
+        "height": 200
+    },
+
+    "crop": {
+        "center": {"x":0.5,"y":0.5},
+        "rotation": 1.5,
+        "zoom": 1,
+        "aspectRatio": 1,
+        "flip": {
+            "horizontal": true,
+            "vertical": false
+        }
+    }
+
+}

@@ -1,18 +1,11 @@
-# Doka PHP
+<?php
 
-A image manipulation library to apply [Doka](https://pqina.nl/doka) and [FilePond](https://pqina.nl/filepond) image transform information on the server instead of on the client.
-
-Map FilePond and Doka on the `CropInstructions` and `ResizeInstructions` classes to supply instructions to `Doka\transform`.
-
-## Usage
-
-```php
 header('Content-Type: image/jpeg');
 
 require_once('Doka/Doka.class.php');
 
 /*
-// Load image transform instructions from JSON file
+// Load image transform instructions from json file
 $file = 'hello.json';
 $handle = fopen($file, 'r');
 $data = json_decode(fread($handle, filesize($file)));
@@ -21,7 +14,7 @@ fclose($handle);
 
 Doka\transform(
 
-    // The source image.
+    // The source image
     './hello.jpeg', 
 
     // The target image. This parameter is optional. 
@@ -54,10 +47,9 @@ Doka\transform(
         ]
     ],
 
-    // The output instructions. This parameter is optional.
+    // The output requirements, this parameter is optional
     [
         'quality' => 75,
         'type' => 'image/jpeg'
     ]
 );
-```

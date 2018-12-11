@@ -41,6 +41,7 @@ class Image {
     }
 
     public function update($resource) {
+        imagedestroy($this->resource);
         $this->resource = $resource;
     }
 
@@ -62,17 +63,25 @@ class Image {
     }
 
     public function save($target, $quality) {
-
         call_user_func(
             IMAGE_SAVERS[$this->type],
             $this->resource,
             $target,
             $quality
         );
+    }
 
-        // remove from memory
+    public function output($quality) {
+        return call_user_func(
+            IMAGE_SAVERS[$this->type],
+            $this->resource,
+            NULL,
+            $quality
+        );
+    }
+
+    public function destroy() {
         imagedestroy($this->resource);
-
     }
 
     public function getSize() {
@@ -88,7 +97,7 @@ class Image {
             imagesy($this->resource) * .5
         );
     }
-
+    
     public function __get($property) {
         if (property_exists($this, $property)) {
             return $this->$property;
