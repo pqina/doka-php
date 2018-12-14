@@ -44,6 +44,10 @@ function is_target($arg) {
     return [];
 };
 
+function is_transform($t) {
+    return $t === 'crop' || $t === 'resize';
+}
+
 
 function transform($source, ...$args) {
 
@@ -73,6 +77,7 @@ function transform($source, ...$args) {
 
     // apply transforms
     foreach ($params['transforms'] as $key => $value) {
+        if (!is_transform($key)) { continue; }
         call_user_func(__NAMESPACE__ . '\\' . $key, $image, $value);
     }
 
