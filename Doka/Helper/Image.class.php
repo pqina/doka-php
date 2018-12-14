@@ -2,6 +2,11 @@
 
 namespace Doka;
 
+const IMAGE_TYPES = [
+    'image/jpeg' => IMAGETYPE_JPEG,
+    'image/png' => IMAGETYPE_PNG
+];
+
 const IMAGE_LOADERS = [
     IMAGETYPE_JPEG => 'imagecreatefromjpeg',
     IMAGETYPE_PNG => 'imagecreatefrompng'
@@ -11,6 +16,14 @@ const IMAGE_SAVERS = [
     IMAGETYPE_JPEG => 'imagejpeg',
     IMAGETYPE_PNG => 'imagepng'
 ];
+
+const IMAGE_QUALITY = [
+    IMAGETYPE_JPEG => 'imagejpegquality',
+    IMAGETYPE_PNG => 'imagepngquality'
+];
+
+function imagejpegquality($quality) { return $quality; }
+function imagepngquality($quality) { return -1; }
 
 class Image {
 
@@ -31,13 +44,6 @@ class Image {
 
         $this->natural_width = imagesx($this->resource);
         $this->natural_height = imagesy($this->resource);
-    }
-
-    public function createWithSameFormat($width, $height) {
-        $canvas = imagecreatetruecolor($width, $height);
-        imagealphablending($canvas, false); 
-        imagesavealpha($canvas,true);
-        return $canvas;
     }
 
     public function update($resource) {
@@ -62,21 +68,63 @@ class Image {
         return $this->resource;
     }
 
-    public function save($target, $quality) {
+    private function createCanvas($width, $height) {
+        $canvas = imagecreatetruecolor($width, $height);
+        if ($this->type === IMAGETYPE_PNG) {
+            imagesavealpha($canvas , true);
+            imagefill($canvas, 0, 0, imagecolorallocatealpha($canvas, 0, 0, 0, 127));
+        }
+        else {
+            imagealphablending($canvas, false);
+        }
+        return $canvas;
+    }
+
+    public function draw($source, $x, $y, $width, $height) {
+        
+        $canvas = $this->createCanvas($width, $height);
+    
+        imagecopy(
+            $canvas, $source,
+            $x, $y,
+            0, 0, imagesx($source), imagesy($source)
+        );
+
+        $this->update($canvas);
+    }
+
+    public function redrawTo($width, $height, $dx, $dy, $dw, $dh) {
+
+        $canvas = $this->createCanvas($width, $height);
+
+        imagecopyresampled(
+            $canvas, $this->resource,
+            $dx, $dy,
+            0, 0,
+            $dw, $dh,
+            imagesx($this->resource), imagesy($this->resource)
+        );
+
+        $this->update($canvas);
+    }
+
+    public function save($target, $quality, $forceType) {
+        $type = $forceType === null ? $this->type : IMAGE_TYPES[$forceType];
         call_user_func(
-            IMAGE_SAVERS[$this->type],
+            IMAGE_SAVERS[$type],
             $this->resource,
             $target,
-            $quality
+            call_user_func(__NAMESPACE__ . '\\' . IMAGE_QUALITY[$type], $quality)
         );
     }
 
-    public function output($quality) {
+    public function output($type, $quality, $forceType) {
+        $type = $forceType === null ? $this->type : IMAGE_TYPES[$forceType];
         return call_user_func(
-            IMAGE_SAVERS[$this->type],
+            IMAGE_SAVERS[$type],
             $this->resource,
             NULL,
-            $quality
+            call_user_func(__NAMESPACE__ . '\\' . IMAGE_QUALITY[$type], $quality)
         );
     }
 

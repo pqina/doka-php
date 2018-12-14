@@ -66,17 +66,23 @@ function transform($source, ...$args) {
     // create the image object
     $image = new Image($source);
 
+    // exit, failed to create image
+    if ($image === null) {
+        return null;
+    }
+
     // apply transforms
     foreach ($params['transforms'] as $key => $value) {
         call_user_func(__NAMESPACE__ . '\\' . $key, $image, $value);
     }
 
-    // output quality if defined
-    $quality = isset($params['output']) ? $params['output']['quality'] : -1;
+    // set quality and type if defined
+    $quality = isset($params['output']) && isset($params['output']['quality']) ? $params['output']['quality'] : -1;
+    $type = isset($params['output']) && isset($params['output']['type']) ? $params['output']['type'] : null;
     
     // if should save, do it now
     if (isset($params['target'])) {
-        $image->save($params['target'], $quality);
+        $image->save($params['target'], $quality, $type);
 
         // clean up
         $image->destroy();
@@ -84,7 +90,7 @@ function transform($source, ...$args) {
     }
 
     // return resource so can render to page immidiately
-    $resource = $image->output($quality);
+    $resource = $image->output($quality, $type);
 
     // clean up
     $image->destroy();
@@ -93,19 +99,18 @@ function transform($source, ...$args) {
     return $resource;
 }
 
+function rotate($image, $rotation) { return imagerotate($image, -$rotation * (180 / pi()), 0); }
+
+function scale($image, $scale) {
+    $width = imagesx($image);
+    $height = imagesy($image);
+    $canvas = imagecreatetruecolor($width * $scale, $height * $scale);
+    imagefill($canvas, 0, 0, imagecolorallocatealpha($canvas, 0, 0, 0, 127));
+    imagecopyresampled($canvas, $image, 0, 0, 0, 0, $width * $scale, $height * $scale, $width, $height);
+    return $canvas;
+}
+
 function crop($image, $data) {
-
-    function rotate($image, $rotation) {
-        return imagerotate($image, -$rotation * (180 / pi()), 0);
-    }
-
-    function scale($image, $scale) {
-        return imagescale(
-            $image, 
-            imagesx($image) * $scale, 
-            imagesy($image) * $scale
-        );
-    }
 
     $crop = new CropTransform($data);
 
@@ -162,20 +167,9 @@ function crop($image, $data) {
     $translate_x += ($cos * $offset_x) - ($sin * $offset_y);
     $translate_y += ($sin * $offset_x) + ($cos * $offset_y);
 
-    $output = $image->createWithSameFormat($output_rect->width, $output_rect->height);
-    imagecopy(
-        // target <= source
-        $output, $transformed,
+    // draw transformed image back to image object
+    $image->draw($transformed, $translate_x, $translate_y, $output_rect->width, $output_rect->height);
 
-        // translate to image offset
-        $translate_x, $translate_y,
-
-        // draw whole of output image
-        0, 0, $scaled_rotated_size->width, $scaled_rotated_size->height
-    );
-
-    $image->update($output);
-    
     // remove transformed version from memory
     imagedestroy($transformed);
 }
@@ -234,24 +228,10 @@ function resize($image, $data) {
         $target_rect = new Rect($x, $y, $width, $height);
     }
 
-    $output = $image->createWithSameFormat($output_size->width, $output_size->height);
-
-    imagecopyresampled(
-        // target <= source
-        $output, $image->resource,
-
-        // dx, dy
+    $image->redrawTo(
+        $output_size->width, $output_size->height,
         $target_rect->x, $target_rect->y,
-
-        // sx, sy
-        0, 0,
-        
-        // dw, dh
-        $target_rect->width, $target_rect->height,
-
-        // sw, sh
-        $image_size->width, $image_size->height
+        $target_rect->width, $target_rect->height
     );
 
-    $image->update($output);
 }
