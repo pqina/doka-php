@@ -118,7 +118,7 @@ class Image {
         );
     }
 
-    public function output($type, $quality, $forceType) {
+    public function output($quality, $forceType) {
         $type = $forceType === null ? $this->type : IMAGE_TYPES[$forceType];
         return call_user_func(
             IMAGE_SAVERS[$type],

@@ -1,5 +1,5 @@
 <?php
-require_once('Doka/Doka.class.php');
+require_once('Doka.class.php');
 
 header('Content-Type: image/jpeg');
 
@@ -39,8 +39,10 @@ Doka\transform(
             ]
         ],
         'resize' => [
-            'width' => 256,
-            'height' => 256,
+            'size' => [
+                'width' => 256,
+                'height' => 256
+            ],
             'mode' => 'cover',
             'upscale' => false
         ]

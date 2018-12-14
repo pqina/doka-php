@@ -2,8 +2,10 @@
     "resize": {
         "mode": "contain",
         "upscale": false,
-        "width": 200,
-        "height": 200
+        "size": {
+            "width": 200,
+            "height": 200
+        }
     },
 
     "crop": {
