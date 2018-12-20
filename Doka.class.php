@@ -48,8 +48,17 @@ function is_transform($t) {
     return $t === 'crop' || $t === 'resize';
 }
 
+function is_valid_image($source) {
+    if (filesize($source) <= 11) {
+        return false;
+    }
+    $type = exif_imagetype($source);
+    return (($type === IMAGETYPE_JPEG) || ($type === IMAGETYPE_PNG));
+}
 
 function transform($source, ...$args) {
+
+    if (!is_valid_image($source)) return false;
 
     $arg_mappers = [
         'is_target',
@@ -71,8 +80,8 @@ function transform($source, ...$args) {
     $image = new Image($source);
 
     // exit, failed to create image
-    if ($image === null) {
-        return null;
+    if (!$image) {
+        return false;
     }
 
     // apply transforms
@@ -91,7 +100,7 @@ function transform($source, ...$args) {
 
         // clean up
         $image->destroy();
-        return null;
+        return true;
     }
 
     // return resource so can render to page immidiately

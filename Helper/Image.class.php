@@ -36,10 +36,6 @@ class Image {
 
         $this->type = exif_imagetype($source);
 
-        if (!$this->type || !IMAGE_LOADERS[$this->type]) {
-            return null;
-        }
-
         $this->resource = call_user_func(IMAGE_LOADERS[$this->type], $source);
 
         $this->natural_width = imagesx($this->resource);
